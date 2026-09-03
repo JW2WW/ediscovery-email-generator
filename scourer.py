@@ -45,30 +45,54 @@ def harvest_federal_register_pdf():
     return url, filename, 10000
 
 
-def _download_source(source_fn):
+import json
+import xml.etree.ElementTree as ET
+
+def _download_source(source_fn, retries=3):
     if not os.path.exists(SAMPLES_DIR):
         os.makedirs(SAMPLES_DIR)
 
     target_url, filename, min_size = source_fn()
     filepath = os.path.join(SAMPLES_DIR, filename)
+    
+    for attempt in range(retries):
+        try:
+            print(f"[*] Harvesting from: {source_fn.__name__} (Attempt {attempt + 1}/{retries})")
+            print(f"[*] Endpoint: {target_url}")
+            req = urllib.request.Request(target_url, headers={"User-Agent": USER_AGENT})
+            with urllib.request.urlopen(req, timeout=15) as response:
+                data = response.read()
 
-    try:
-        print(f"[*] Harvesting from: {source_fn.__name__}")
-        print(f"[*] Endpoint: {target_url}")
-        req = urllib.request.Request(target_url, headers={"User-Agent": USER_AGENT})
-        with urllib.request.urlopen(req, timeout=15) as response:
-            data = response.read()
-        if len(data) < min_size:
-            return False
-        with open(filepath, "wb") as output_file:
-            output_file.write(data)
-        print(f"[+] Harvested: {filename} ({len(data) // 1024} KB)")
-        return True
-    except Exception as e:
-        print(f"[-] Harvest failed ({source_fn.__name__}): {e}")
-        if os.path.exists(filepath):
-            os.remove(filepath)
-        return False
+            if len(data) < min_size:
+                print(f"[-] Downloaded data too small ({len(data)} bytes) for {filename}. Retrying...")
+                continue
+            
+            # Specific content validation
+            ext = os.path.splitext(filename)[1].lower()
+            if ext == ".json":
+                try:
+                    json.loads(data)
+                except json.JSONDecodeError:
+                    print(f"[-] Invalid JSON content for {filename}. Retrying...")
+                    continue
+            elif ext == ".xml":
+                try:
+                    ET.fromstring(data)
+                except ET.ParseError:
+                    print(f"[-] Invalid XML content for {filename}. Retrying...")
+                    continue
+
+            with open(filepath, "wb") as output_file:
+                output_file.write(data)
+            print(f"[+] Harvested: {filename} ({len(data) // 1024} KB)")
+            return True
+        except Exception as e:
+            print(f"[-] Harvest failed ({source_fn.__name__}, Attempt {attempt + 1}/{retries}): {e}")
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            if attempt < retries - 1:
+                time.sleep(1) # Wait a bit before retrying
+    return False
 
 
 def scour_web_for_attachments():

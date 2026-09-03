@@ -142,8 +142,32 @@ def fetch_gutenberg_text():
         return None, None
 
 
+
+def fetch_financial_news():
+    # Simulate fetching financial news data.
+    # In a real scenario, this would integrate with a financial news API.
+    financial_headlines = [
+        "Market Trends: Tech Sector Sees Q3 Growth",
+        "Inflation Concerns Rise Amidst Global Supply Chain Issues",
+        "Quarterly Earnings Report: Company X Exceeds Expectations",
+        "Analysts Predict Moderate Growth for S&P 500 in Coming Months",
+        "Cryptocurrency Volatility Continues: Investors Remain Cautious"
+    ]
+    financial_summaries = [
+        "The tech sector has shown robust growth in the third quarter, driven by strong consumer demand for electronic goods and software services. This trend is expected to continue.",
+        "Concerns about rising inflation are impacting global markets, with supply chain disruptions being a primary factor. Central banks are closely monitoring the situation.",
+        "Company X announced its quarterly earnings today, reporting significant gains across all divisions. Revenue and profit figures surpassed analyst predictions.",
+        "Financial analysts are forecasting a period of moderate, steady growth for the S&P 500. Investors are advised to remain diversified.",
+        "The cryptocurrency market is still experiencing high volatility, leading many investors to adopt a more cautious approach. Regulatory discussions are ongoing."
+    ]
+    
+    subject = random.choice(financial_headlines)
+    body = random.choice(financial_summaries)
+    return subject, body
+
+
 def fetch_realistic_content():
-    strategies = [fetch_un_news, fetch_arxiv_tech_data, fetch_github_dev_logs, fetch_gutenberg_text]
+    strategies = [fetch_un_news, fetch_arxiv_tech_data, fetch_github_dev_logs, fetch_gutenberg_text, fetch_financial_news]
     random.shuffle(strategies)
     for strategy in strategies:
         try:
