@@ -8,12 +8,17 @@ This is **not** a spam tool. From/To addresses are invented (`alice.vance@enron-
 
 - Python 3.10+
 - An SMTP listener on the host/port in `config.ini` (MailHog, Mailpit, or your eDiscovery ingest). Default: `localhost:1025`.
-
-No third-party packages are required for the main pipeline.
+- `Faker` library (install via `pip install -r requirements.txt`).
 
 ## Quick start
 
+First, install dependencies:
+
 ```bash
+pip install -r requirements.txt
+```
+
+Then, run the generator:```bash
 # Point config.ini at your SMTP ingest if it is not localhost:1025
 python3 main.py
 ```
@@ -43,16 +48,14 @@ See `config.ini`:
 | `[generation]` | `batch_size` | Messages per run |
 | `[dates]` | `randomize_date`, `range_years_back` | Date header; off by default |
 
-`min_attachments` / `max_attachments` in the config file are unused; attachment mix is chosen in `main.py`.
-
+`min_attachments` / `max_attachments` in the config file are unused.
 ## Layout
 
 | File | Role |
 |------|------|
 | `main.py` | Batch orchestrator |
-| `contentfetcher.py` | Subject/body from public sources, wrapped as business mail |
+| `contentfetcher.py` | Subject/body from public sources (UN News, arXiv, GitHub, Project Gutenberg, FreeNewsAPI for USA News), wrapped as business mail |
 | `docgenerator.py` | PDF / XLSX / XLS / DOCX / DOC / PPTX / PPT (stdlib only) _(Note: .doc and .ppt are generated as RTF files, not native binary formats.)_ |
 | `assetmanager.py` | MIME attachments, nested `.eml`, ZIP bundles |
 | `mail_sender.py` | MIME assembly and SMTP send |
 | `scourer.py` | GovInfo / Federal Register harvest + local doc seed |
-| `generator.py` | Unused RSS helper (legacy) |
