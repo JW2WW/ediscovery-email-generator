@@ -6,13 +6,9 @@ SAMPLES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "samples"
 USER_AGENT = "Mozilla/5.0 (compatible; eDiscoveryComplianceMatrix/2.0)"
 
 
-def harvest_federal_register():
-    year = random.choice(["2024", "2025"])
-    month, day = f"{random.randint(1, 12):02d}", f"{random.randint(1, 28):02d}"
-    url = f"https://www.federalregister.gov/data/documents/{year}/{month}/{day}/bulk_xml.xml"
-    filename = f"fed_reg_{year}_{month}_{day}.xml"
-    return url, filename, 1500
-
+import json
+import xml.etree.ElementTree as ET
+import time
 
 def harvest_congressional_bills():
     year = random.choice(["2024", "2025"])
@@ -20,7 +16,6 @@ def harvest_congressional_bills():
     url = f"https://www.govinfo.gov/bulkdata/json/BILLS/{year}/1/hr/BILLS-{year}hr{bill_id}ih.json"
     filename = f"congress_bill_{year}_hr{bill_id}.json"
     return url, filename, 1500
-
 
 def harvest_govinfo_pdf():
     """Download a real congressional bill PDF from GovInfo."""
@@ -33,13 +28,32 @@ def harvest_govinfo_pdf():
     filename = f"HR{bill_id}_{congress}th_Congress.pdf"
     return url, filename, 5000
 
+def harvest_federal_register():
+    # Use the Federal Register API to get a random document's XML URL
+    url = "https://www.federalregister.gov/api/v1/documents.json?per_page=20&order=newest&fields[]=full_text_xml_url"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(req, timeout=15) as response:
+            data = json.loads(response.read().decode('utf-8'))
+        
+        if data and "results" in data and len(data["results"]) > 0:
+            random_doc = random.choice(data["results"])
+            xml_url = random_doc.get("full_text_xml_url")
+            if xml_url:
+                # Extract filename from URL for consistency
+                filename = xml_url.split('/')[-1]
+                return xml_url, filename, 1000 # Minimum size for XML
+    except Exception as e:
+        print(f"[-] Error fetching Federal Register API: {e}")
+    return None, None, 0
 
 def harvest_federal_register_pdf():
-    """Download a Federal Register issue PDF."""
+    """Download a Federal Register issue PDF from GovInfo."""
     year = random.choice([2024, 2025])
     month = random.randint(1, 12)
     day = random.randint(1, 28)
     fr_date = f"{year}-{month:02d}-{day:02d}"
+    # Updated URL to GovInfo for Federal Register PDFs
     url = f"https://www.govinfo.gov/content/pkg/FR-{fr_date}/pdf/FR-{fr_date}.pdf"
     filename = f"Federal_Register_{year}_{month:02d}_{day:02d}.pdf"
     return url, filename, 10000
