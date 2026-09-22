@@ -142,8 +142,51 @@ def fetch_gutenberg_text():
         return None, None
 
 
+
+def fetch_usa_news():
+    # Fetch current USA news from FreeNewsAPI
+    url = "https://freenewsapi.ai/v1/search?country=US&date=today&full_text=true&size=20"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(req, timeout=4) as r:
+            data = json.loads(r.read().decode('utf-8'))
+        
+        if data and "results" in data and len(data["results"]) > 0:
+            article = random.choice(data["results"])
+            title = article.get('title', '')
+            full_text = article.get('text', '')
+            if title and full_text:
+                return title, full_text
+    except Exception as e:
+        print(f"[-] Error fetching USA news from FreeNewsAPI: {e}")
+    return None, None
+
+
+def fetch_financial_news():
+    # Simulate fetching financial news data.
+    # In a real scenario, this would integrate with a financial news API.
+    financial_headlines = [
+        "Market Trends: Tech Sector Sees Q3 Growth",
+        "Inflation Concerns Rise Amidst Global Supply Chain Issues",
+        "Quarterly Earnings Report: Company X Exceeds Expectations",
+        "Analysts Predict Moderate Growth for S&P 500 in Coming Months",
+        "Cryptocurrency Volatility Continues: Investors Remain Cautious"
+    ]
+    financial_summaries = [
+        "The tech sector has shown robust growth in the third quarter, driven by strong consumer demand for electronic goods and software services. This trend is expected to continue.",
+        "Concerns about rising inflation are impacting global markets, with supply chain disruptions being a primary factor. Central banks are closely monitoring the situation.",
+        "Company X announced its quarterly earnings today, reporting significant gains across all divisions. Revenue and profit figures surpassed analyst predictions.",
+        "Financial analysts are forecasting a period of moderate, steady growth for the S&P 500. Investors are advised to remain diversified.",
+        "The cryptocurrency market is still experiencing high volatility, leading many investors to adopt a more cautious approach. Regulatory discussions are ongoing."
+    ]
+    
+    subject = random.choice(financial_headlines)
+    body = random.choice(financial_summaries)
+    return subject, body
+
+
 def fetch_realistic_content():
-    strategies = [fetch_un_news, fetch_arxiv_tech_data, fetch_github_dev_logs, fetch_gutenberg_text]
+    strategies = [fetch_un_news, fetch_arxiv_tech_data, fetch_github_dev_logs, fetch_gutenberg_text, fetch_financial_news, fetch_usa_news]
     random.shuffle(strategies)
     for strategy in strategies:
         try:

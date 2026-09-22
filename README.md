@@ -51,7 +51,7 @@ See `config.ini`:
 |------|------|
 | `main.py` | Batch orchestrator |
 | `contentfetcher.py` | Subject/body from public sources, wrapped as business mail |
-| `docgenerator.py` | PDF / XLSX / XLS / DOCX / DOC / PPTX / PPT (stdlib only) |
+| `docgenerator.py` | PDF / XLSX / XLS / DOCX / DOC / PPTX / PPT (stdlib only) _(Note: .doc and .ppt are generated as RTF files, not native binary formats.)_ |
 | `assetmanager.py` | MIME attachments, nested `.eml`, ZIP bundles |
 | `mail_sender.py` | MIME assembly and SMTP send |
 | `scourer.py` | GovInfo / Federal Register harvest + local doc seed |
