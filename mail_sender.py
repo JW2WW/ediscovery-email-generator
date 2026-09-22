@@ -15,11 +15,11 @@ fake = Faker()
 
 def generate_fake_email():
     return fake.email()
+
 def _load_config():
     config = configparser.ConfigParser()
     config.read("config.ini")
     return config
-
 
 def load_smtp_config():
     config = _load_config()
@@ -27,14 +27,12 @@ def load_smtp_config():
     port = config.getint("smtp", "port", fallback=1025)
     return host, port
 
-
 def load_date_settings():
     """Return (randomize_date, range_years_back) from config."""
     config = _load_config()
     randomize = config.getboolean("dates", "randomize_date", fallback=True)
     years_back = config.getint("dates", "range_years_back", fallback=10)
     return randomize, max(years_back, 0)
-
 
 def get_message_timestamp():
     """Return a Unix timestamp for the email Date header."""
@@ -44,11 +42,6 @@ def get_message_timestamp():
     now = int(time.time())
     start_time = now - (years_back * 365 * 24 * 60 * 60)
     return random.randint(start_time, now)
-
-
-def generate_fake_email():
-    return f"{random.choice(NAMES)}@{random.choice(DOMAINS)}"
-
 
 def build_custom_email(subject, body_text, attachments=None):
     # CRITICAL FIX: Assign the strict SMTP policy directly to the message object upon creation.
