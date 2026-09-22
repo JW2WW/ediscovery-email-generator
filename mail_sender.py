@@ -9,10 +9,12 @@ from email.mime.text import MIMEText
 from email import encoders
 from email.generator import BytesGenerator
 from email.policy import SMTP  # <-- CRITICAL: Import the strict SMTP wire policy
+from faker import Faker
 
-DOMAINS = ["enron-legacy.com", "global-trade.net", "apex-innovation.io", "omega-finance.org"]
-NAMES = ["alice.vance", "bob.jenkins", "charlie.smith", "diana.prince", "evan.wright", "fiona.gallagher"]
+fake = Faker()
 
+def generate_fake_email():
+    return fake.email()
 def _load_config():
     config = configparser.ConfigParser()
     config.read("config.ini")

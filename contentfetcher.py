@@ -143,6 +143,25 @@ def fetch_gutenberg_text():
 
 
 
+def fetch_usa_news():
+    # Fetch current USA news from FreeNewsAPI
+    url = "https://freenewsapi.ai/v1/search?country=US&date=today&full_text=true&size=20"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(req, timeout=4) as r:
+            data = json.loads(r.read().decode('utf-8'))
+        
+        if data and "results" in data and len(data["results"]) > 0:
+            article = random.choice(data["results"])
+            title = article.get('title', '')
+            full_text = article.get('text', '')
+            if title and full_text:
+                return title, full_text
+    except Exception as e:
+        print(f"[-] Error fetching USA news from FreeNewsAPI: {e}")
+    return None, None
+
+
 def fetch_financial_news():
     # Simulate fetching financial news data.
     # In a real scenario, this would integrate with a financial news API.
@@ -167,7 +186,7 @@ def fetch_financial_news():
 
 
 def fetch_realistic_content():
-    strategies = [fetch_un_news, fetch_arxiv_tech_data, fetch_github_dev_logs, fetch_gutenberg_text, fetch_financial_news]
+    strategies = [fetch_un_news, fetch_arxiv_tech_data, fetch_github_dev_logs, fetch_gutenberg_text, fetch_financial_news, fetch_usa_news]
     random.shuffle(strategies)
     for strategy in strategies:
         try:
